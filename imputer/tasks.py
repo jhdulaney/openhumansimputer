@@ -135,7 +135,7 @@ def get_vcf(data_source_id, oh_id):
                 handle.write(block)
         except:
             logger.critical('your data source file is malformated')
-    time.sleep(5) # download takes a few seconds
+    time.sleep(5)  # download takes a few seconds
 
 
 @app.task
@@ -246,7 +246,8 @@ def process_chrom(chrom, oh_id, num_submit=0, **kwargs):
     if chrom == 1:
         new_header = ['##FORMAT=<ID=GP,Number=3,Type=Float,Description="Estimated Posterior Probabilities (rounded to 3 digits) for Genotypes 0/0, 0/1 and 1/1">\n',
                       '##INFO=<ID=INFO,Number=1,Type=Float,Description="Impute2 info metric">\n'
-                      '##imputerdate={}'.format(datetime.date.today().strftime("%m-%d-%y"))
+                      '##imputerdate={}'.format(
+                          datetime.date.today().strftime("%m-%d-%y"))
                       ]
         header.insert(-2, new_header[0])
         header.insert(-4, new_header[1])
@@ -305,11 +306,11 @@ def upload_to_oh(oh_id):
 def pipeline(vcf_id, oh_id):
     task1 = get_vcf.si(vcf_id, oh_id)
     task2 = prepare_data.si(oh_id)
-    async_chroms = group(submit_chrom.si(chrom, oh_id)
-                         for chrom in CHROMOSOMES)
-    async_process = group(process_chrom.si(chrom, oh_id)
-                          for chrom in CHROMOSOMES)
-    task3 = chain(async_chroms, async_process, upload_to_oh.si(oh_id))
+    task3 = group(submit_chrom.si(chrom, oh_id)
+                  for chrom in CHROMOSOMES)
+    task4 = group(process_chrom.si(chrom, oh_id)
+                  for chrom in CHROMOSOMES)
+    task5 = upload_to_oh.si(oh_id)
 
-    pipeline = chain(task1, task2, task3)
+    pipeline = chain(task1, task2, task3, task4, task5)
     pipeline.apply_async()
