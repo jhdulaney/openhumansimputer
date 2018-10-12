@@ -303,14 +303,20 @@ def upload_to_oh(oh_id):
     imputer_record.save()
 
 
+@app.task(name='group_separator')
+def group_separator() -> None:
+    return True
+
+
 def pipeline(vcf_id, oh_id):
     task1 = get_vcf.si(vcf_id, oh_id)
     task2 = prepare_data.si(oh_id)
     task3 = group(submit_chrom.si(chrom, oh_id)
                   for chrom in CHROMOSOMES)
-    task4 = group(process_chrom.si(chrom, oh_id)
+    task4 = group_separator.si()
+    task5 = group(process_chrom.si(chrom, oh_id)
                   for chrom in CHROMOSOMES)
-    task5 = upload_to_oh.si(oh_id)
+    task6 = upload_to_oh.si(oh_id)
 
-    pipeline = chain(task1, task2, task3, task4, task5)
-    pipeline.apply_async()
+    pipe = chain(task1, task2, task3, task4, task5, task6)
+    pipe.apply_async()
