@@ -2,6 +2,8 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2a3ef5e03ed04e3abbd065846c9b98be)](https://app.codacy.com/app/arvkevi/openhumansimputer?utm_source=github.com&utm_medium=referral&utm_content=arvkevi/openhumansimputer&utm_campaign=Badge_Grade_Dashboard)
 
+This branch might be obsolete, I'm keeping it for reference to alternate pipeline methods.
+
 ## More Information
 This repository is the source code for the Imputer application for [Open Humans](https://www.openhumans.org/).  
 More information can be found at the homepage: [openimpute.com](http://www.openimpute.com)
